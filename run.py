@@ -53,9 +53,12 @@ def main():
                 gpx_template = f.read()
 
             with open(full_gpx_path, 'w') as f:
-                track_points = '\n'.join([p.to_gpx() for p in points])
-                start_time = points[0].timestamp
-                f.write(gpx_template.format(start_time=start_time, track_points=track_points))
+                try:
+                    track_points = '\n'.join([p.to_gpx() for p in points])
+                    start_time = points[0].timestamp
+                    f.write(gpx_template.format(start_time=start_time, track_points=track_points))
+                except IndexError as e:
+                    print("Did not process " + kml_filename + " because " + str(e))
 
 
 if __name__ == '__main__':
