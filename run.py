@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import os, re, sys
+from zipfile import ZipFile
 
 CURRENT_DIRECTORY = os.getcwd()
 APP_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -31,26 +32,31 @@ def read_points(track_contents):
     return [Point.from_kml(match) for match in matches]
 
 
-def main(kml_filename, gpx_filename):
-    full_kml_path = os.path.join(CURRENT_DIRECTORY, kml_filename)
-    full_gpx_path = os.path.join(CURRENT_DIRECTORY, gpx_filename)
+def main():
+    for kml_filename in os.listdir("./"):
+        # check only kmz files
+        if kml_filename.endswith('.kmz'):
+            with ZipFile(kml_filename, 'r') as zipObj:
+                zipObj.extractall()
+            full_kml_path = os.path.join(CURRENT_DIRECTORY, "doc.kml")
+            full_gpx_path = os.path.join(CURRENT_DIRECTORY, kml_filename + ".gpx")
 
-    points = []
+            points = []
 
-    with open(full_kml_path, 'r') as f:
-        file_contents = f.read()
-        track_contents = re.search(r'gx:Track>(.*)</gx:Track', file_contents, re.DOTALL)
-        points = read_points(track_contents.group(1))
+            with open(full_kml_path, 'r') as f:
+                file_contents = f.read()
+                track_contents = re.search(r'gx:Track>(.*)</gx:Track', file_contents, re.DOTALL)
+                points = read_points(track_contents.group(1))
 
-    gpx_template = ''
-    with open(GPX_TEMPLATE_FILE, 'r') as f:
-        gpx_template = f.read()
+            gpx_template = ''
+            with open(GPX_TEMPLATE_FILE, 'r') as f:
+                gpx_template = f.read()
 
-    with open(full_gpx_path, 'w') as f:
-        track_points = '\n'.join([p.to_gpx() for p in points])
-        start_time = points[0].timestamp
-        f.write(gpx_template.format(start_time=start_time, track_points=track_points))
+            with open(full_gpx_path, 'w') as f:
+                track_points = '\n'.join([p.to_gpx() for p in points])
+                start_time = points[0].timestamp
+                f.write(gpx_template.format(start_time=start_time, track_points=track_points))
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2])
+    main()
