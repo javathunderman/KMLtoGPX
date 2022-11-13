@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import os, re, sys
 from zipfile import ZipFile
 
@@ -7,7 +6,7 @@ APP_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 GPX_TEMPLATE_FILE = os.path.join(APP_DIRECTORY, 'template.gpx')
 
-POINT_REGEX = r'<when>(.*?)</when>\s*<gx:coord>(.*?)</gx:coord>'
+POINT_REGEX = r'<when>(.*?)</when>\s*<coord>(.*?)</coord>'
 
 class Point:
     def __init__(self, lat, lon, elevation, timestamp):
@@ -45,7 +44,7 @@ def main():
 
             with open(full_kml_path, 'r') as f:
                 file_contents = f.read()
-                track_contents = re.search(r'gx:Track>(.*)</gx:Track', file_contents, re.DOTALL)
+                track_contents = re.search(r'Track>(.*)</Track', file_contents, re.DOTALL)
                 points = read_points(track_contents.group(1))
 
             gpx_template = ''
